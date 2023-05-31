@@ -8,20 +8,22 @@ export PATH=$HOME/.cargo/bin:$PATH
 # Path to your oh-my-zsh installation.
 export ZSH="$HOME/.oh-my-zsh"
 
+export DOTFILES="$HOME/dotfiles"
+
 # Set name of the theme to load
 # See https://github.com/ohmyzsh/ohmyzsh/wiki/Themes
 ZSH_THEME="stevo"
 
-# Uncomment the following line to use case-sensitive completion.
+# Case-sensitive completion.
 # CASE_SENSITIVE="true"
 
 # Uncomment the following line to use hyphen-insensitive completion.
 # Case-sensitive completion must be off. _ and - will be interchangeable.
 # HYPHEN_INSENSITIVE="true"
 
-# Uncomment one of the following lines to change the auto-update behavior
+# Auto-update behavior
 # zstyle ':omz:update' mode disabled  # disable automatic updates
-zstyle ':omz:update' mode auto      # update automatically without asking
+zstyle ':omz:update' mode auto # update automatically without asking
 # zstyle ':omz:update' mode reminder  # just remind me to update when it's time
 
 # Uncomment the following line to change how often to auto-update (in days).
@@ -87,54 +89,18 @@ source $ZSH/oh-my-zsh.sh
 # Compilation flags
 # export ARCHFLAGS="-arch x86_64"
 
-# Set personal aliases, overriding those provided by oh-my-zsh libs,
-# plugins, and themes. Aliases can be placed here, though oh-my-zsh
-# users are encouraged to define aliases within the ZSH_CUSTOM folder.
-# For a full list of active aliases, run `alias`.
-#
-alias aa="nano ~/.zshrc && source ~/.zshrc"
-alias cdp="cd ~/projects"
-alias python="python3"
-alias act="source .venv/bin/activate"
-alias cw="cargo watch -x 'run'"
-alias vim="nvim"
-
-cdx() {
-  deactivate > /dev/null 2>&1
-  local project
-  project=$(find /home/stevo/projects/. -maxdepth 1 -type d -name "$1*" -print -quit)
-  if [ -z "$project" ]
-  then
-    echo "Project not found!"
-    return 1
-  else
-    cd $project
-    act > /dev/null 2>&1
-    return 0
+source_if_exists() {
+  if test -r "$1"; then
+    source "$1"
   fi
 }
 
-_cdx_completion() {
-  local completions_dir="/home/stevo/projects"
-  local current_word="${COMP_WORDS[COMP_CWORD]}"
-
-  local completions=()
-  for file in "$completions_dir"/*; do
-    completions+=("$(basename "$file")")
-  done
-
-  COMPREPLY=($(compgen -W "${completions[*]}" -- "$current_word"))
-}
-complete -F _cdx_completion cdx
-
-pyscan() {
-  echo "Pylint"
-  echo "--------------------------------------------------------------------"
-  .venv/bin/pylint $1
-  echo "Ruff"
-  echo "--------------------------------------------------------------------"
-  .venv/bin/ruff $1
-  echo "Mypy"
-  echo "--------------------------------------------------------------------"
-  .venv/bin/mypy --strict --explicit-package-bases $1
-}
+source_if_exists $HOME/.env.sh
+# source_if_exists $DOTFILES/zsh/history.zsh
+# source_if_exists $DOTFILES/zsh/git.zsh
+# source_if_exists ~/.fzf.zsh
+source_if_exists "$DOTFILES/zsh/aliases.sh"
+source_if_exists "$DOTFILES/zsh/functions.sh"
+# source_if_exists $HOME/.asdf/asdf.sh
+# source_if_exists /usr/local/etc/profile.d/z.sh
+# source_if_exists /opt/homebrew/etc/profile.d/z.sh

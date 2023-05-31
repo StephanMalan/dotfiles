@@ -1,0 +1,2 @@
+$DOTFILES/zsh/.zshrc=$HOME/.zshrc
+$DOTFILES/zsh/themes/stevo.zsh-theme=$HOME/.oh-my-zsh/custom/themes/stevo.zsh-theme
