@@ -10,6 +10,7 @@ if which rustc >/dev/null 2>&1; then
     rustup update | pipe_output 2
 else
     curl https://sh.rustup.rs -sSf | sh -s -- -y
+    source "$HOME/.cargo/env"
     success 1 "Installed Rust."
 fi
 

@@ -2,7 +2,7 @@
 #
 # Custom functions
 
-cdx() {
+cdp() {
     deactivate >/dev/null 2>&1
     local project
     project=$(find "$HOME/projects/." -maxdepth 1 -type d -name "$1*" -print -quit)
@@ -16,7 +16,7 @@ cdx() {
     fi
 }
 
-_cdx_completion() {
+_cdp_completion() {
     local completions_dir="$HOME/projects"
     local current_word="${COMP_WORDS[COMP_CWORD]}"
 
@@ -27,7 +27,7 @@ _cdx_completion() {
 
     COMPREPLY=($(compgen -W "${completions[*]}" -- "$current_word"))
 }
-complete -F _cdx_completion cdx
+complete -F _cdp_completion cdp
 
 chkp() {
     has_changes=false

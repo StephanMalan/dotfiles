@@ -77,4 +77,5 @@ create_env_file
 echo ''
 install
 echo ''
+chsh -s $(which zsh)
 success 0 'Successfully setup system!'

@@ -37,3 +37,4 @@ fi
 
 gh auth login
 gh repo clone StephanMalan/dotfiles ~/projects/dotfiles
+source ~/projects/dotfiles/install/setup.sh
