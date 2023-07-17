@@ -46,25 +46,62 @@ prompt_segment() {
   [[ -n $3 ]] && echo -n $3
 }
 
-# End the prompt, closing any open segments
-prompt_end() {
-  if [[ -n $CURRENT_BG ]]; then
-    echo -n " %{%k%F{$CURRENT_BG}%}$SEGMENT_SEPARATOR"
-  else
-    echo -n "%{%k%}"
-  fi
-  echo -n "%{%f%}"
-  CURRENT_BG=''
-}
+# Status:
+# - was there an error
+# - am I root
+# - are there background jobs?
+prompt_status() {
+  local -a symbols
 
-### Prompt components
-# Each component will draw itself, and hide itself if no information needs to be shown
+  [[ $RETVAL -ne 0 ]] && symbols+="%{%F{red}%}✘"
+  [[ $UID -eq 0 ]] && symbols+="%{%F{yellow}%}⚡"
+  [[ $(jobs -l | wc -l) -gt 0 ]] && symbols+="%{%F{cyan}%}⚙"
+
+  [[ -n "$symbols" ]] && prompt_segment black default "$symbols"
+}
 
 # Context: user@hostname (who am I and where am I)
 prompt_context() {
   if [[ "$USERNAME" != "$DEFAULT_USER" || -n "$SSH_CLIENT" ]]; then
     prompt_segment red black "%(!.%{%F{yellow}%}.)%n"
   fi
+}
+
+# Dir: current working directory
+prompt_dir() {
+  prompt_segment cyan $CURRENT_FG '%~'
+}
+
+# Virtualenv: current working virtualenv
+prompt_virtualenv() {
+  if [[ -n "$VIRTUAL_ENV" && -n "$VIRTUAL_ENV_DISABLE_PROMPT" ]]; then
+    prompt_segment green black "${$($VIRTUAL_ENV/bin/python --version):t:gs/%/%%}"
+  fi
+}
+
+#AWS Profile:
+# - display current AWS_PROFILE name
+# - displays yellow on red if profile name contains 'production' or
+#   ends in '-prod'
+# - displays black on green otherwise
+prompt_aws() {
+  [[ -z "$AWS_PROFILE" || "$SHOW_AWS_PROMPT" = false ]] && return
+  case "$AWS_PROFILE" in
+    *-prod|*production*) prompt_segment red yellow  "AWS: ${AWS_PROFILE:gs/%/%%}" ;;
+    *) prompt_segment green black "AWS: ${AWS_PROFILE:gs/%/%%}" ;;
+  esac
+}
+
+# Project: print out project details
+prompt_project() {
+  local project_name
+  project_name=$(ptp ./ playful)
+  if [ -z "$project_name" ]
+  then
+      return
+  fi
+  prompt_segment red $CURRENT_FG
+  echo -n $project_name
 }
 
 # Git: branch/detached head, dirty status
@@ -124,117 +161,15 @@ prompt_git() {
   fi
 }
 
-prompt_bzr() {
-  (( $+commands[bzr] )) || return
-
-  # Test if bzr repository in directory hierarchy
-  local dir="$PWD"
-  while [[ ! -d "$dir/.bzr" ]]; do
-    [[ "$dir" = "/" ]] && return
-    dir="${dir:h}"
-  done
-
-  local bzr_status status_mod status_all revision
-  if bzr_status=$(bzr status 2>&1); then
-    status_mod=$(echo -n "$bzr_status" | head -n1 | grep "modified" | wc -m)
-    status_all=$(echo -n "$bzr_status" | head -n1 | wc -m)
-    revision=${$(bzr log -r-1 --log-format line | cut -d: -f1):gs/%/%%}
-    if [[ $status_mod -gt 0 ]] ; then
-      prompt_segment yellow black "bzr@$revision ✚"
-    else
-      if [[ $status_all -gt 0 ]] ; then
-        prompt_segment yellow black "bzr@$revision"
-      else
-        prompt_segment green black "bzr@$revision"
-      fi
-    fi
+# End the prompt, closing any open segments
+prompt_end() {
+  if [[ -n $CURRENT_BG ]]; then
+    echo -n " %{%k%F{$CURRENT_BG}%}$SEGMENT_SEPARATOR"
+  else
+    echo -n "%{%k%}"
   fi
-}
-
-prompt_hg() {
-  (( $+commands[hg] )) || return
-  local rev st branch
-  if $(hg id >/dev/null 2>&1); then
-    if $(hg prompt >/dev/null 2>&1); then
-      if [[ $(hg prompt "{status|unknown}") = "?" ]]; then
-        # if files are not added
-        prompt_segment red white
-        st='±'
-      elif [[ -n $(hg prompt "{status|modified}") ]]; then
-        # if any modification
-        prompt_segment yellow black
-        st='±'
-      else
-        # if working copy is clean
-        prompt_segment green $CURRENT_FG
-      fi
-      echo -n ${$(hg prompt "☿ {rev}@{branch}"):gs/%/%%} $st
-    else
-      st=""
-      rev=$(hg id -n 2>/dev/null | sed 's/[^-0-9]//g')
-      branch=$(hg id -b 2>/dev/null)
-      if `hg st | grep -q "^\?"`; then
-        prompt_segment red black
-        st='±'
-      elif `hg st | grep -q "^[MA]"`; then
-        prompt_segment yellow black
-        st='±'
-      else
-        prompt_segment green $CURRENT_FG
-      fi
-      echo -n "☿ ${rev:gs/%/%%}@${branch:gs/%/%%}" $st
-    fi
-  fi
-}
-
-# Dir: current working directory
-prompt_dir() {
-  prompt_segment cyan $CURRENT_FG '%~'
-}
-
-# Virtualenv: current working virtualenv
-prompt_virtualenv() {
-  if [[ -n "$VIRTUAL_ENV" && -n "$VIRTUAL_ENV_DISABLE_PROMPT" ]]; then
-    prompt_segment green black "(${$($VIRTUAL_ENV/bin/python --version):t:gs/%/%%})"
-  fi
-}
-
-# Status:
-# - was there an error
-# - am I root
-# - are there background jobs?
-prompt_status() {
-  local -a symbols
-
-  [[ $RETVAL -ne 0 ]] && symbols+="%{%F{red}%}✘"
-  [[ $UID -eq 0 ]] && symbols+="%{%F{yellow}%}⚡"
-  [[ $(jobs -l | wc -l) -gt 0 ]] && symbols+="%{%F{cyan}%}⚙"
-
-  [[ -n "$symbols" ]] && prompt_segment black default "$symbols"
-}
-
-#AWS Profile:
-# - display current AWS_PROFILE name
-# - displays yellow on red if profile name contains 'production' or
-#   ends in '-prod'
-# - displays black on green otherwise
-prompt_aws() {
-  [[ -z "$AWS_PROFILE" || "$SHOW_AWS_PROMPT" = false ]] && return
-  case "$AWS_PROFILE" in
-    *-prod|*production*) prompt_segment red yellow  "AWS: ${AWS_PROFILE:gs/%/%%}" ;;
-    *) prompt_segment green black "AWS: ${AWS_PROFILE:gs/%/%%}" ;;
-  esac
-}
-
-prompt_project() {
-  local project_name
-  project_name=$(ptp ./)
-  if [ -z "$project_name" ]
-  then
-      return
-  fi
-  prompt_segment 91ddff $CURRENT_FG
-  echo -n $project_name
+  echo -n "%{%f%}"
+  CURRENT_BG=''
 }
 
 ## Main prompt
@@ -243,12 +178,10 @@ build_prompt() {
   prompt_status
   prompt_context
   prompt_dir
-  prompt_project
   prompt_virtualenv
   prompt_aws
+  prompt_project
   prompt_git
-  prompt_bzr
-  prompt_hg
   prompt_end
 }
 
