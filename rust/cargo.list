@@ -1,0 +1,14 @@
+cargo-update
+bat
+fd-find
+tokei
+speedtest-rs
+cargo-show-asm
+cargo-expand
+irust
+gitui
+ripgrep
+exa
+zellij
+bottom
+lsd
