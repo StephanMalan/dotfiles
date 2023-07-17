@@ -8,7 +8,9 @@ export PATH=$HOME/.cargo/bin:$PATH
 # Path to your oh-my-zsh installation.
 export ZSH="$HOME/.oh-my-zsh"
 
-export DOTFILES="$HOME/dotfiles"
+# Custom env variables
+export PROJECTS="$HOME/projects"
+export DOTFILES="$PROJECTS/dotfiles"
 
 # Set name of the theme to load
 # See https://github.com/ohmyzsh/ohmyzsh/wiki/Themes
@@ -104,3 +106,4 @@ source_if_exists "$DOTFILES/zsh/functions.sh"
 # source_if_exists $HOME/.asdf/asdf.sh
 # source_if_exists /usr/local/etc/profile.d/z.sh
 # source_if_exists /opt/homebrew/etc/profile.d/z.sh
+eval "$(zellij setup --generate-auto-start zsh)"
