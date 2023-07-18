@@ -36,5 +36,5 @@ if ! [ -x "$(command -v gh)" ]; then
 fi
 
 gh auth login
-gh repo clone StephanMalan/dotfiles ~/projects/dotfiles
-source ~/projects/dotfiles/install/setup.sh
+gh repo clone StephanMalan/dotfiles $HOME/projects/dotfiles
+source $HOME/projects/dotfiles/install/setup.sh

@@ -2,38 +2,10 @@
 #
 # Main setup script for dotfiles
 
-cd "$(dirname "$0")/.."
-DOTFILES=$(pwd -P)
+DOTFILES="$HOME/projects/dotfiles"
 source "$DOTFILES/install/utils.sh"
 
 set -e
-
-link_files() {
-    info 0 "Starting file linking process:"
-
-    if [[ $(git status -s) != '' ]]; then
-        if [[ $1 == "-f" ]]; then
-            warn 1 "Uncommitted changes found, but continuing due to force flag."
-        else
-            fail 1 "Uncommitted changes found. Please commit changes before running script."
-        fi
-    fi
-
-    find -H "$DOTFILES" -maxdepth 2 -name 'links.props' -not -path '*.git*' | while read linkfile; do
-        cat "$linkfile" | while IFS= read -r line; do
-            local src dst dir
-            src=$(eval echo "$line" | cut -d '=' -f 1)
-            dst=$(eval echo "$line" | cut -d '=' -f 2)
-            dir=$(dirname $dst)
-
-            mkdir -p "$dir"
-            ln -sf "$src" "$dst"
-            success 1 "Linked $src to $dst"
-        done
-    done
-
-    success 1 "Finished linking files"
-}
 
 create_env_file() {
     info 0 "Creating env file:"
@@ -45,37 +17,87 @@ create_env_file() {
     fi
 }
 
+link() {
+    info 0 "Linking files ($1)"
+    while IFS= read -r line; do
+        local src dst dir
+        src=$(eval echo "$line" | cut -d '=' -f 1)
+        dst=$(eval echo "$line" | cut -d '=' -f 2)
+        dir=$(dirname $dst)
+
+        mkdir -p "$dir"
+        ln -sf "$src" "$dst"
+        success 1 "Linked $src to $dst"
+
+    done <"$1/links.props"
+}
+
 install() {
-    info 0 "Start installation process:"
+    source "$1/install.$2.sh"
+}
+
+install_packages() {
+    # Whitelisted commands
+    whitelist=("link" "install")
+
+    find -H "$DOTFILES" -maxdepth 2 -name "*.module" -not -path '*.git*' | while read modulefile; do
+        local src dst dir
+        dir=$(dirname $modulefile)
+        modulename=$(basename "$dir")
+        modulename=$(echo "$modulename" | sed 's/\b\(.\)/\u\1/g')
+        info 1 "Installing '$modulename' package"
+
+        while IFS= read -r line; do
+            if [[ "${whitelist[*]}" =~ (^| )"$line"($| ) ]]; then
+                eval "$line" "$dir" $1 | pipe_output 2
+            else
+                echo "Unknown function: $line"
+                exit 1
+            fi
+        done <"$modulefile"
+    done
+}
+
+changeshell() {
+    if [[ "$(basename "$SHELL")" != "zsh" ]]; then
+        chsh -s "$(which zsh)"
+        success 0 "Please relog in order for changes to take effect."
+    fi
+}
+
+setup() {
+    echo ' _____        _    __ _ _           '
+    echo '|  __ \      | |  / _(_) |          '
+    echo '| |  | | ___ | |_| |_ _| | ___  ___ '
+    echo '| |  | |/ _ \| __|  _| | |/ _ \/ __|'
+    echo '| |__| | (_) | |_| | | | |  __/\__ \'
+    echo '|_____/ \___/ \__|_| |_|_|\___||___/'
+    echo ''
+
+    if [[ $(git status -s) != '' ]]; then
+        if [[ $1 == "-f" ]]; then
+            warn 0 "Uncommitted changes found, but continuing due to force flag."
+        else
+            fail 0 "Uncommitted changes found. Please commit changes before running script."
+        fi
+    fi
+
     if [[ "$OSTYPE" == "linux-gnu"* ]]; then
-        os_type=$(cat /etc/issue | awk '{print $1}')
+        source /etc/os-release
+        os_type="$ID"
     elif [[ "$OSTYPE" == "darwin"* ]]; then
         os_type="mac"
     fi
-    info 1 "OS type: $os_type"
-    echo ""
+    info 0 "OS type: $os_type"
 
-    main_install="$DOTFILES/install/main-install.${os_type,,}.sh"
-    info 1 "Installing main dependecies from: $main_install"
-    source $main_install | pipe_output 2
-    success 2 "Finished intalling from: $main_install"
-    echo ""
-
-    find -H "$DOTFILES" -maxdepth 2 -name "install.${os_type,,}.sh" -not -path '*.git*' | while read installfile; do
-        info 1 "Installing from: $installfile"
-        source $installfile | pipe_output 2
-        success 2 "Finished installing from: $main_install"
-        echo ""
-    done
-    success 1 "Finished installing."
+    create_env_file
+    info 0 "Installing main dependencies"
+    install "$DOTFILES/install" $os_type | pipe_output 1
+    info 0 "Installing packages"
+    install_packages $os_type
+    changeshell
+    success 0 'Successfully setup system!'
 }
 
 force_flag=$1
-link_files $force_flag
-echo ''
-create_env_file
-echo ''
-install
-echo ''
-chsh -s $(which zsh)
-success 0 'Successfully setup system!'
+setup $force_flag
