@@ -27,7 +27,7 @@ _cdp_completion() {
 
     COMPREPLY=($(compgen -W "${completions[*]}" -- "$current_word"))
 }
-complete -F _cdp_completion cdp
+complete -o nospace -F _cdp_completion cdp
 
 chkp() {
     has_changes=false

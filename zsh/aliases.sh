@@ -2,10 +2,17 @@
 #
 # Custom aliases
 
-alias aa="nano $DOTFILES/zsh/aliases.sh && $DOTFILES/zsh/aliases.sh"
-alias af="nano $DOTFILES/zsh/functions.sh && $DOTFILES/zsh/functions.sh"
-alias ll="lsd -al"
-alias python="python3"
+# ZSH
+alias aa="nano $DOTFILES/zsh/aliases.sh && exec zsh"
+alias af="nano $DOTFILES/zsh/functions.sh && exec zsh"
+
+# Python
 alias act="source .venv/bin/activate"
+alias python="python3"
+
+# Rust
 alias cw="cargo watch -x 'run'"
+
+# Misc
+alias ll="lsd -al"
 alias vim="nvim"
