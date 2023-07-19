@@ -6,17 +6,14 @@ source "$DOTFILES/install/utils.sh"
 
 set -e
 
-cargo_install() {
-    info 0 "Installing/Updating '$1' crate"
-    cargo install -q $1
-    success 1 "Installed/Updated '$1'"
-}
-
 info 0 "Installing/Updating cargo crates:"
 
+info 1 "'cargo-quickinstall' crate"
+cargo install cargo-quickinstall -q
+
 cat "$DOTFILES/rust/cargo.list" | while IFS= read -r line; do
-    info 1 "Installing/Updating '$line' crate"
-    cargo install -q $line
+    info 1 "'$line' crate"
+    cargo quickinstall -q $line
 done
 
 success 1 "Installed/Updated cargo crates."
