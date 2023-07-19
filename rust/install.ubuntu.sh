@@ -4,6 +4,8 @@
 
 source "$DOTFILES/install/utils.sh"
 
+set -e
+
 info 0 "Installing Rust:"
 if which rustc >/dev/null 2>&1; then
     warn 1 "Rust already installed, updating:"

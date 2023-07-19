@@ -4,6 +4,8 @@
 
 source "$DOTFILES/install/utils.sh"
 
+set -e
+
 info 0 "Installing Oh-my-zsh:"
 sudo apt-get install zsh -y -q | pipe_output 1
 

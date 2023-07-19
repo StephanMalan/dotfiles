@@ -4,6 +4,8 @@
 
 source "$DOTFILES/install/utils.sh"
 
+set -e
+
 cargo_install() {
     info 0 "Installing/Updating '$1' crate"
     cargo install -q $1

@@ -2,6 +2,8 @@
 #
 # Install main dependencies for Ubuntu
 
+set -e
+
 source "$DOTFILES/install/utils.sh"
 
 info 0 "Update system:"

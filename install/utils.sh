@@ -2,6 +2,8 @@
 #
 # Util functions for bash scripts
 
+set -e
+
 pipe_output() {
     while IFS= read -r line; do
         print_output "" "$1" "$line" # Add the prefix arguments to the echo statement
