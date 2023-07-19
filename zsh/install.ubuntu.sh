@@ -7,7 +7,12 @@ source "$DOTFILES/install/utils.sh"
 set -e
 
 info 0 "Installing Oh-my-zsh:"
-sudo apt-get install zsh -y -q | pipe_output 1
+if [ ! -d "$HOME/.oh-my-zsh" ]; then
+    sh -c "$(curl -fsSL https://raw.githubusercontent.com/ohmyzsh/ohmyzsh/master/tools/install.sh)" -s
+    success 1 "Installed Oh-my-zsh."
+else
+    warn 1 "Oh my zsh already installed."
+fi
 
 echo ""
 info 0 "Installing Oh-my-zsh plugins:"
