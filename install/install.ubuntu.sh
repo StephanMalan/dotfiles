@@ -7,14 +7,14 @@ set -e
 source "$DOTFILES/install/utils.sh"
 
 info 0 "Update system:"
-sudo apt-get update -y -q | pipe_output 1
-sudo apt-get full-upgrade -y -q | pipe_output 1
+sudo apt-get update -y -qq | pipe_output 1
+sudo apt-get full-upgrade -y -qq | pipe_output 1
 success 1 "Updated system."
 
 echo ""
 
 info 0 "Install main dependencies:"
-sudo apt-get autoremove -y -q | pipe_output 1
+sudo apt-get autoremove -y -qq | pipe_output 1
 sudo apt-get install \
     build-essential \
     libssl-dev \
@@ -29,7 +29,7 @@ sudo apt-get install \
     pkg-config \
     tree \
     zsh \
-    -y -q | pipe_output 1
+    -y -qq | pipe_output 1
 sudo snap install docker | pipe_output 1
 sudo snap install dbeaver-ce | pipe_output 1
 sudo snap install discord | pipe_output 1
