@@ -49,7 +49,7 @@ chkp() {
                 REMOTE=$(git rev-parse "@{u}")
 
                 if [ "$LOCAL" != "$REMOTE" ]; then
-                    echo "\033[0;31m \u21b0 \033[0m There are unpushed commits in directory: $dir"
+                    echo "\033[0;31m \u21b0 \033[0m There are unsynced commits in directory: $dir"
                     has_changes=true
                 fi
             fi
@@ -61,4 +61,27 @@ chkp() {
     if [ "$has_changes" = false ]; then
         echo "\033[0;32m \ue0a0 \033[0m All directories are up to date"
     fi
+}
+
+install_spotify() {
+    echo 'Downloading service file'
+    wget https://raw.githubusercontent.com/Spotifyd/spotifyd/master/contrib/spotifyd.service -O $HOME/.config/systemd/user/spotifyd.service -q
+
+    echo -n Enter Spotify username:
+    read username
+    echo -n Enter Spotify password:
+    read -s password
+    echo
+
+    echo 'Setting up config file'
+    mkdir -p "$HOME/.config/spotifyd"
+    config_file="$HOME/.config/spotifyd/spotifyd.conf"
+    echo '[global]' >$config_file
+    echo "username = \"$username\"" >>$config_file
+    echo '' >>$config_file
+    echo "password = \"$password\"" >>$config_file
+    systemctl --user enable spotifyd.service --now
+
+    echo '\033[00;32m\uf00c\033[0m Done'
+
 }

@@ -16,3 +16,7 @@ alias cw="cargo watch -x 'run'"
 # Misc
 alias ll="lsd -al"
 alias vim="nvim"
+alias diff="bat --diff"
+alias bata="bat --show-all"
+alias tree="tree -a -I '.git|__pycache__'"
+alias refresh="exec zsh"

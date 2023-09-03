@@ -63,19 +63,19 @@ prompt_status() {
 # Context: user@hostname (who am I and where am I)
 prompt_context() {
   if [[ "$USERNAME" != "$DEFAULT_USER" || -n "$SSH_CLIENT" ]]; then
-    prompt_segment red black "%(!.%{%F{yellow}%}.)%n"
+    prompt_segment blue black "%(!.%{%F{yellow}%}.)%n"
   fi
 }
 
 # Dir: current working directory
 prompt_dir() {
-  prompt_segment cyan $CURRENT_FG '%~'
+  prompt_segment red $CURRENT_FG '%~'
 }
 
 # Virtualenv: current working virtualenv
 prompt_virtualenv() {
   if [[ -n "$VIRTUAL_ENV" && -n "$VIRTUAL_ENV_DISABLE_PROMPT" ]]; then
-    prompt_segment green black "${$($VIRTUAL_ENV/bin/python --version):t:gs/%/%%}"
+    prompt_segment cyan black "${$($VIRTUAL_ENV/bin/python --version):t:gs/%/%%}"
   fi
 }
 
@@ -100,7 +100,7 @@ prompt_project() {
   then
       return
   fi
-  prompt_segment red $CURRENT_FG
+  prompt_segment magenta $CURRENT_FG
   echo -n $project_name
 }
 
