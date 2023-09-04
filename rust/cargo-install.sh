@@ -13,7 +13,7 @@ cargo install cargo-quickinstall -q
 
 cat "$DOTFILES/rust/cargo.list" | while IFS= read -r line; do
     info 1 "'$line' crate"
-    cargo quickinstall -q $line
+    cargo quickinstall $line
 done
 
 success 1 "Installed/Updated cargo crates."

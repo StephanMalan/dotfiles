@@ -3,7 +3,6 @@ cargo-update
 bat
 fd-find
 tokei
-speedtest-rs
 cargo-show-asm
 cargo-expand
 irust
@@ -13,3 +12,4 @@ exa
 zellij
 bottom
 lsd
+project_toml_parser
