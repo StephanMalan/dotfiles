@@ -65,7 +65,7 @@ window:
   #decorations: full
 
   # Background opacity
-  opacity: 0.5
+  opacity: 0.99
 
   # Startup Mode (changes require restart)
   #
@@ -153,7 +153,7 @@ colors:
   # Default colors
   primary:
     background: "#282c34"
-#  foreground: '#c5c8c6'
+    foreground: "#ffffff"
 
 # Bright and dim foreground colors
 #

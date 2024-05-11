@@ -107,3 +107,14 @@ source_if_exists "$DOTFILES/zsh/functions.sh"
 # source_if_exists /usr/local/etc/profile.d/z.sh
 # source_if_exists /opt/homebrew/etc/profile.d/z.sh
 eval "$(zellij setup --generate-auto-start zsh)"
+
+# bun completions
+[ -s "/home/stevo/.bun/_bun" ] && source "/home/stevo/.bun/_bun"
+
+# bun
+export BUN_INSTALL="$HOME/.bun"
+export PATH="$BUN_INSTALL/bin:$PATH"
+
+
+# Load Angular CLI autocompletion.
+source <(ng completion script)
